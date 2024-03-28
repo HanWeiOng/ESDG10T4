@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `ProductName` varchar(64) NOT NULL,
   `ModelName` varchar(64) NOT NULL,
   `StockCount` int NOT NULL,
-  `ProductPrice` decimal(10,2)
+  `ProductPrice` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --

@@ -78,7 +78,6 @@ def get_item(ID):
     ), 404
     
 
-
 @app.route('/inventory/<int:ID>', methods=['PUT'])
 def update_item(ID):
     inventory = db.session.scalars(
@@ -107,6 +106,73 @@ def update_item(ID):
         }
     ), 404
    
+@app.route("/inventory/<int:ID>", methods=['POST'])
+def create_item(ID):
+    if (db.session.scalars(
+      db.select(Inventory).filter_by(ID=ID).
+      limit(1)
+      ).first()
+      ):
+        return jsonify(
+            {
+                "code": 400,
+                "data": {
+                    "ID": ID
+                },
+                "message": "Item already exists."
+            }
+        ), 400
+
+
+    data = request.get_json()
+    item = Inventory(ID, **data)
+
+
+    try:
+        db.session.add(item)
+        db.session.commit()
+    except:
+        return jsonify(
+            {
+                "code": 500,
+                "data": {
+                    "ID": ID
+                },
+                "message": "An error occurred creating the item."
+            }
+        ), 500
+
+
+    return jsonify(
+        {
+            "code": 201,
+            "data": item.json()
+        }
+    ), 201
+    
+@app.route('/inventory/<int:ID>', methods=['DELETE'])
+def remove_item(ID):
+    inventory = db.session.scalars(
+        db.select(Inventory).filter_by(ID=ID).
+        limit(1)
+    ).first()
+
+    if inventory:
+        db.session.delete(inventory)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Item removed successfully."
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Item not found."
+        }
+    ), 404
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
